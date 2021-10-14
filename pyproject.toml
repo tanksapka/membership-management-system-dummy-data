@@ -1,0 +1,65 @@
+version = 1
+disable_existing_loggers = false
+
+[root]
+level = "INFO"
+handlers = ["rootHandler", ]
+
+[handlers.rootHandler]
+class = "logging.StreamHandler"
+level = "INFO"
+formatter = "rootFormatter"
+stream = "ext://sys.stdout"
+
+[formatters.rootFormatter]
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+[tool.coverage.run]
+branch = true
+omit = ["*test/*", "*venv/*"]
+command_line = "-m unittest discover"
+
+[tool.coverage.report]
+omit = ["*test/*", "*venv/*"]
+precision = 2
+fail_under = 90.00
+exclude_lines = ["if __name__ == .__main__.:", "pragma: no cover", "def __repr__", "if 0:"]
+
+[dummy.config]
+base_date = "2020-12-31"
+seed = 1
+
+[dummy.config.gender_distribution]
+male = 0.25
+female = 0.73
+other = 0.02
+
+[dummy.config.gender_id_map]
+male = 1
+female = 2
+other = 3
+
+[dummy.config.membership_id_map]
+# Keys are upper bounds of age range, -1 is the default id
+20 = 1
+65 = 2
+-1 = 3
+
+[dummy.config.age_distribution]
+mu = 55
+sigma = 20
+bottom = 18
+top = 90
+
+[dummy.config.organization]
+root = "Magyar Rákellenes Liga"
+min_date = "1995-01-01"
+max_date = "2015-12-31"
+
+[dummy.config.address.settlement_correction]
+"Magyar Rákellenes Liga" = "Budapest 12. ker."
+"Hegyvidék" = "Budapest 12. ker."
+"Rákosmente" = "Budapest 17. ker."
+"Kőbánya" = "Budapest 10. ker."
+"Zugló" = "Budapest 14. ker."
+"Budapesti Hangadó" = "Budapest 13. ker."

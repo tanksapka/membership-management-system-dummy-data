@@ -9,7 +9,7 @@
 - Zip codes, settlements
   - https://github.com/tamas-ferenci/IrszHnk/blob/master/IrszHnk.csv
 - Street names
-  - https://data2.openstreetmap.hu/utcanev.php
+  - https://data2.openstreetmap.hu/utcalista.php
 - Landline phone area codes
   - http://korzetszam.keresok.info/korzetszamok
 - Mobile phone codes

@@ -3,7 +3,7 @@ import pandas as pd
 import unittest
 from data_generator.source_data import get_src_path, load_email_service_providers, load_mobile_phone_area_codes, \
     load_landline_phone_area_codes, load_messaging_platform_data, load_settlement_data, load_first_names, \
-    _load_most_common_last_names, _load_enriched_last_names, load_last_names, load_organization_stats
+    _load_most_common_last_names, _load_enriched_last_names, load_last_names, load_organization_stats, load_street_names
 from unittest.mock import patch
 
 
@@ -48,6 +48,12 @@ class TestSourceData(unittest.TestCase):
             'settlement_name', 'zip_code', 'part_of_settlement', 'settlement_ksh_code', 'settlement_legal_status',
             'county_name', 'district_code', 'district_name', 'resident_population',
         ])
+
+    def test_load_street_names(self):
+        with patch('data_generator.source_data._logger', autospec=True):
+            result = load_street_names()
+        self.assertIsInstance(result, pd.DataFrame)
+        self.assertListEqual(result.columns.tolist(), ['street_name', 'street_count'])
 
     @patch('data_generator.source_data.os')
     def test_load_first_names(self, mock_os):

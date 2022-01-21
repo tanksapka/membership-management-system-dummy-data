@@ -63,3 +63,9 @@ max_date = "2015-12-31"
 "Kőbánya" = "Budapest 10. ker."
 "Zugló" = "Budapest 14. ker."
 "Budapesti Hangadó" = "Budapest 13. ker."
+
+[dummy.config.address.address_type_id_map]
+"Állandó lakcím" = 1
+"Székhely cím" = 2
+"Hivatalos cím" = 3
+"Levelezési cím" = 4

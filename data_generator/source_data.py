@@ -64,7 +64,7 @@ def load_landline_phone_area_codes() -> pd.DataFrame:
     src_path = get_src_path('korzetszamok_vezetekes.xlsx')
 
     df: pd.DataFrame
-    df = pd.read_excel(src_path)
+    df = pd.read_excel(src_path, converters={'Irányítószám': int})
     df.rename(columns={
         'Település': 'settlement',
         'Megye': 'county',

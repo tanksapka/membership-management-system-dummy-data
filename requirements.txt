@@ -6,10 +6,12 @@ idna==2.10
 numpy==1.20.3
 openpyxl==3.0.7
 pandas==1.2.4
+pyodbc==4.0.28
 python-dateutil==2.8.1
 pytz==2021.1
 requests==2.25.1
 six==1.16.0
 soupsieve==2.2.1
+SQLAlchemy==1.4.25
 toml==0.10.2
 urllib3==1.26.5

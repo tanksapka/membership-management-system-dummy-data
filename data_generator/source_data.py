@@ -44,8 +44,7 @@ def load_mobile_phone_area_codes() -> pd.DataFrame:
     _logger.info('Loading mobile phone area codes')
     src_path = get_src_path('korzetszamok_mobil.xlsx')
 
-    df: pd.DataFrame
-    df = pd.read_excel(src_path)
+    df: pd.DataFrame = pd.read_excel(src_path)
     df.rename(columns={
         'Körzetszám': 'area_code',
         'Szolgáltató': 'service_provider',
@@ -63,8 +62,8 @@ def load_landline_phone_area_codes() -> pd.DataFrame:
     _logger.info('Loading landline phone area codes')
     src_path = get_src_path('korzetszamok_vezetekes.xlsx')
 
-    df: pd.DataFrame
-    df = pd.read_excel(src_path, converters={'Irányítószám': int})
+    df: pd.DataFrame = pd.read_excel(src_path, converters={'Irányítószám': int})
+    df.drop_duplicates(subset=['Irányítószám'], inplace=True)
     df.rename(columns={
         'Település': 'settlement',
         'Megye': 'county',
@@ -84,8 +83,7 @@ def load_messaging_platform_data() -> pd.DataFrame:
     _logger.info('Loading messaging platform data')
     src_path = get_src_path('uzenetkuldo_appok.xlsx')
 
-    df: pd.DataFrame
-    df = pd.read_excel(src_path)
+    df: pd.DataFrame = pd.read_excel(src_path)
 
     _logger.info('Loading finished, %d rows loaded' % df.shape[0])
     return df
@@ -98,9 +96,8 @@ def load_settlement_data() -> pd.DataFrame:
     _logger.info('Loading settlement data')
     src_path = get_src_path('IrszHnk.csv')
 
-    df: pd.DataFrame
     with open(src_path, 'r') as fh:
-        df = pd.read_csv(fh, delimiter=';')
+        df: pd.DataFrame = pd.read_csv(fh, delimiter=';')
     df = df[['Helység.megnevezése', 'IRSZ', 'Településrész', 'Helység.KSH kódja', 'Helység.jogállása',
              'Megye megnevezése', 'Járáskódja', 'Járásneve', 'Lakó-népesség']]
     df.rename(columns={
@@ -133,9 +130,8 @@ def load_street_names() -> pd.DataFrame:
         'útja', 'villasor',
     ]
 
-    df: pd.DataFrame
     with open(src_path, 'r', encoding='utf-8') as fh:
-        df = pd.read_csv(fh, delimiter=',')
+        df: pd.DataFrame = pd.read_csv(fh, delimiter=',')
     df.rename(columns={'Név': 'street_name', 'Útszakasz': 'street_count'}, inplace=True)
     df = df.loc[(df['street_count'] >= 5) & ~(df['street_name'].apply(lambda x: x[0].isnumeric()))]
     df.insert(len(df.columns), 'str_ending', df['street_name'].apply(lambda x: x[x.rfind(' '):].strip().lower()))
@@ -156,8 +152,7 @@ def load_first_names() -> pd.DataFrame:
         'male': 'osszesffi.txt',
         'female': 'osszesnoi.txt',
     }
-    df_dict: Dict[str, pd.DataFrame]
-    df_dict = dict()
+    df_dict: Dict[str, pd.DataFrame] = dict()
 
     for gender, file in src_files.items():
         src_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', file)
@@ -183,8 +178,7 @@ def _load_most_common_last_names() -> pd.DataFrame:
     for dirpath, dirnames, filenames in dir_scan:
         files = [file for file in filenames if file.startswith('kozerdeku_csaladnev_')]
 
-    df_dict: Dict[str, pd.DataFrame]
-    df_dict = dict()
+    df_dict: Dict[str, pd.DataFrame] = dict()
 
     col_name_map = {
         'Családi név': 'last_name',
@@ -251,8 +245,7 @@ def load_organization_stats() -> pd.DataFrame:
     _logger.info('Loading organization member statistics')
     src_path = get_src_path('alapszervezeti_letszamok.xlsx')
 
-    df: pd.DataFrame
-    df = pd.read_excel(src_path)
+    df: pd.DataFrame = pd.read_excel(src_path)
     df.rename(columns={
         'Alapszervezet': 'organization',
         'Tag Létszám 2018': 'members_2018',

@@ -66,21 +66,40 @@ class DummyDataGenerator:
         Main method to generate the dummy data for the database's data model. Returns the list of output file paths.
         """
         df_ppl = self.person_data()
+        df_ppl.index += 1
         df_org = self.organization_data(df_ppl)
+        df_org.index += 1
         df_address = self.address_data(df_ppl, df_org)
+        df_address.index += 1
         df_phone = self.phone_data(df_address)
+        df_phone.index += 1
         df_email = self.email_data(df_ppl, df_org)
+        df_email.index += 1
 
         df_ppl.drop(columns=['organization'], inplace=True)
-        df_ppl.index += 1
-        df_org.index += 1
-        df_address.index += 1
-        df_phone.index += 1
-        df_email.index += 1
+
+        current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+
+        df_ppl.insert(len(df_ppl.columns), "created_on", current_timestamp)
+        df_ppl.insert(len(df_ppl.columns), "created_by", os.getlogin())
+
+        df_org.insert(len(df_org.columns), "created_on", current_timestamp)
+        df_org.insert(len(df_org.columns), "created_by", os.getlogin())
+
+        df_address.insert(len(df_address.columns), "created_on", current_timestamp)
+        df_address.insert(len(df_address.columns), "created_by", os.getlogin())
+
+        df_phone.insert(len(df_phone.columns), "created_on", current_timestamp)
+        df_phone.insert(len(df_phone.columns), "created_by", os.getlogin())
+
+        df_email.insert(len(df_email.columns), "created_on", current_timestamp)
+        df_email.insert(len(df_email.columns), "created_by", os.getlogin())
 
         # TODO: Figure out the right way to export data for db upload
         return {
+            'person': df_ppl[['created_on', 'created_by']].copy(),
             'person_data': df_ppl,
+            'organization': df_org[['created_on', 'created_by']].copy(),
             'organization_data': df_org,
             'address': df_address,
             'phone': df_phone,
@@ -525,6 +544,7 @@ class DummyPhoneData(DummyDataBase):
         df_tmp: pd.DataFrame = self.mobile_phone_area_codes.sample(
             n=rows, replace=True, weights='weight', random_state=self.seed
         ).reset_index(drop=True).iloc[:, :1]
+        df_tmp.index += 1
         df_tmp.insert(0, 'country_code', '+36')
         random.seed = self.seed
         df_tmp.insert(len(df_tmp.columns), 'phone',
@@ -655,6 +675,7 @@ class DummyEmailData(DummyDataBase):
         email_providers = self.email_service_providers.sample(
             n=rows, replace=True, weights='weight', random_state=self.seed
         ).reset_index(drop=True).iloc[:, :1]
+        email_providers.index += 1
 
         df = df_person[['person_id', 'name']].copy()
         df.insert(len(df.columns), 'email_type_id', 1)

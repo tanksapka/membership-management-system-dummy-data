@@ -9,14 +9,14 @@ class TestBaseScraper(unittest.TestCase):
     @patch('data_generator.web_data.os')
     def test_get_proxies(self, mock_os):
         mock_os.environ = {
-            'http': 'foo',
-            'https': 'bar',
+            'HTTP_PROXY': 'foo',
+            'HTTPS_PROXY': 'bar',
         }
         bs = BaseScraper()
         self.assertDictEqual(bs.get_proxies(), {'http': 'foo', 'https': 'bar'})
 
         mock_os.environ = {
-            'http': 'foo',
+            'HTTP_PROXY': 'foo',
         }
         self.assertDictEqual(bs.get_proxies(), {'http': 'foo'})
 
@@ -32,8 +32,8 @@ class TestFamilyNameScraper(unittest.TestCase):
     @patch('data_generator.web_data.requests')
     def test_get_initials(self, mock_requests, mock_os):
         mock_os.environ = {
-            'http': 'foo',
-            'https': 'bar',
+            'HTTP_PROXY': 'foo',
+            'HTTPS_PROXY': 'bar',
         }
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -54,8 +54,8 @@ class TestFamilyNameScraper(unittest.TestCase):
     @patch('data_generator.web_data.requests')
     def test_get_family_names(self, mock_requests, mock_os):
         mock_os.environ = {
-            'http': 'foo',
-            'https': 'bar',
+            'HTTP_PROXY': 'foo',
+            'HTTPS_PROXY': 'bar',
         }
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -78,8 +78,8 @@ class TestFamilyNameScraper(unittest.TestCase):
     @patch('data_generator.web_data.requests')
     def test_execute(self, mock_requests, mock_os):
         mock_os.environ = {
-            'http': 'foo',
-            'https': 'bar',
+            'HTTP_PROXY': 'foo',
+            'HTTPS_PROXY': 'bar',
         }
         result_paths = [
             os.path.join(os.path.dirname(__file__), 'fixtures', 'initials.html'),

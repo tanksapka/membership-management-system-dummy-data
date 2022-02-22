@@ -28,8 +28,8 @@ class BaseScraper:
     @staticmethod
     def get_proxies() -> Dict[str, str]:
         proxies = {
-            'http': os.environ.get('http'),
-            'https': os.environ.get('https'),
+            'http': os.environ.get('HTTP_PROXY'),
+            'https': os.environ.get('HTTPS_PROXY'),
         }
         return {k: v for k, v in proxies.items() if v}
 

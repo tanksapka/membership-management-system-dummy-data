@@ -52,6 +52,7 @@ class DummyDataGenerator:
         self.address_data = DummyAddressData(self.resources, self.config)
         self.phone_data = DummyPhoneData(self.resources, self.config)
         self.email_data = DummyEmailData(self.resources, self.config)
+        self.membership_data = DummyMembershipData(self.resources, self.config)
 
     def _load_config(self) -> None:
         py_project = toml.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyproject.toml'))
@@ -75,6 +76,8 @@ class DummyDataGenerator:
         df_phone.index += 1
         df_email = self.email_data(df_ppl, df_org)
         df_email.index += 1
+        df_membership = self.membership_data(df_ppl, df_org)
+        df_membership.index += 1
 
         df_ppl.drop(columns=['organization'], inplace=True)
 
@@ -95,6 +98,9 @@ class DummyDataGenerator:
         df_email.insert(len(df_email.columns), "created_on", current_timestamp)
         df_email.insert(len(df_email.columns), "created_by", os.getlogin())
 
+        df_membership.insert(len(df_membership.columns), "created_on", current_timestamp)
+        df_membership.insert(len(df_membership.columns), "created_by", os.getlogin())
+
         # TODO: Figure out the right way to export data for db upload
         return {
             'person': df_ppl[['created_on', 'created_by']].copy(),
@@ -104,6 +110,7 @@ class DummyDataGenerator:
             'address': df_address,
             'phone': df_phone,
             'email': df_email,
+            'membership': df_membership,
         }
 
 
@@ -740,3 +747,28 @@ class DummyEmailData(DummyDataBase):
         df_email.insert(len(df_email.columns), 'valid_flag', 'Y')
         df_email.index.rename('id', inplace=True)
         return df_email
+
+
+class DummyMembershipData(DummyDataBase):
+    """
+    Class to create dummy data for relation between people and organizations.
+    """
+
+    def __call__(self, df_person: pd.DataFrame, df_org: pd.DataFrame) -> pd.DataFrame:
+        """
+        Generates membership data based on initial mapping of people and organizations.
+
+        :param df_person:
+        :param df_org:
+        """
+        df_membership = pd.merge(left=df_person, right=df_org, how='left', left_on='organization', right_on='name')
+        df_membership = df_membership[['person_id', 'organization_id']].copy()
+        df_membership.insert(len(df_membership.columns), 'active_flag', 'Y')
+        df_membership.insert(len(df_membership.columns), 'inactivity_status_id', None)
+        df_membership.insert(len(df_membership.columns), 'event_date', self.base_date.strftime('%Y-%m-%d %H:%M:%S'))
+        df_membership.insert(len(df_membership.columns), 'notes', None)
+        df_membership.insert(len(df_membership.columns), 'valid_from', self.base_date.strftime('%Y-%m-%d %H:%M:%S'))
+        df_membership.insert(len(df_membership.columns), 'valid_to', '9999-12-31 23:59:59')
+        df_membership.insert(len(df_membership.columns), 'valid_flag', 'Y')
+        df_membership.index.rename('id', inplace=True)
+        return df_membership

@@ -34,12 +34,8 @@ class DummyDataGenerator:
         - Organization data (and corresponding contacts)
         - Organization-person relational data
     """
-    def __init__(self, output_folder: str) -> None:
+    def __init__(self) -> None:
         _logger.info('Initializing DummyData class')
-        self.output_folder = output_folder
-        if not os.path.exists(self.output_folder):
-            _logger.info('Creating output folder (%s) as it does not exist' % self.output_folder)
-            os.makedirs(self.output_folder)
 
         self.loader_functions = getmembers(sd, isfunction)
         self.resources = {
@@ -62,9 +58,9 @@ class DummyDataGenerator:
     def config(self) -> Dict[str, Any]:
         return self._config.copy()
 
-    def generate_dummy_data(self):  # -> List[str]:
+    def generate_dummy_data(self) -> Dict[str, pd.DataFrame]:
         """
-        Main method to generate the dummy data for the database's data model. Returns the list of output file paths.
+        Main method to generate the dummy data for the database's data model. Returns dictionary of DataFrames.
         """
         df_ppl = self.person_data()
         df_ppl.index += 1
@@ -101,7 +97,6 @@ class DummyDataGenerator:
         df_membership.insert(len(df_membership.columns), "created_on", current_timestamp)
         df_membership.insert(len(df_membership.columns), "created_by", os.getlogin())
 
-        # TODO: Figure out the right way to export data for db upload
         return {
             'person': df_ppl[['created_on', 'created_by']].copy(),
             'person_data': df_ppl,

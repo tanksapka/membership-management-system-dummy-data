@@ -1,16 +1,45 @@
-import os
+import argparse
 import logging
+import pathlib
 import toml
-import data_generator.source_data as sd
-from inspect import getmembers, isfunction
+from data_generator.data_generator import DummyDataGenerator, pd
 from logging import config
 
 
-log_cfg = toml.load(os.path.join(os.path.dirname(__file__), 'pyproject.toml'))
+log_cfg = toml.load(pathlib.Path(__file__).parent.joinpath('pyproject.toml'))
 config.dictConfig(log_cfg)
 _logger = logging.getLogger(__name__)
 
 
+def create_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run dummy data creation and export results to output folder")
+    parser.add_argument('-o', '--output_folder', type=str, required=True, help='output folder path')
+    parser.add_argument('-t', '--file_type', type=str, choices=['csv', 'xls'], default='csv', help='output file type')
+    return parser
+
+
+def run_data_generation(output_folder: str, file_format: str) -> None:
+    _logger.info(f'Received inputs: {output_folder} and {file_format}')
+    path = pathlib.Path(output_folder)
+    if not path.exists():
+        _logger.info(f'Creating output folder ({path}) as it does not exist')
+        path.mkdir(parents=True, exist_ok=True)
+    ddg = DummyDataGenerator()
+    dummy_data = ddg.generate_dummy_data()
+
+    if file_format == 'csv':
+        for dst, df in dummy_data.items():
+            _logger.info(f'Saving {dst} data to csv')
+            df.to_csv(path.resolve().joinpath(f'{dst}.csv'), sep='\t', index_label='id')
+
+    if file_format == 'xls':
+        with pd.ExcelWriter(path.resolve().joinpath('output.xlsx'), mode='w') as writer:
+            for dst, df in dummy_data.items():
+                _logger.info(f'Saving {dst} data to Excel')
+                df.to_excel(writer, sheet_name=dst, index_label='id')
+
+
 if __name__ == '__main__':
-    # print(dir(sd))
-    print(getmembers(sd, isfunction))
+    args = create_parser()
+    values = args.parse_args()
+    run_data_generation(values.output_folder, values.file_type)

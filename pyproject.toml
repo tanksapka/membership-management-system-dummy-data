@@ -56,7 +56,7 @@ root = "Magyar Rákellenes Liga"
 min_date = "1995-01-01"
 max_date = "2015-12-31"
 
-[dummy.config.address.settlement_correction]
+[dummy.config.address_settlement_correction]
 "Magyar Rákellenes Liga" = "Budapest 12. ker."
 "Hegyvidék" = "Budapest 12. ker."
 "Rákosmente" = "Budapest 17. ker."
@@ -64,8 +64,22 @@ max_date = "2015-12-31"
 "Zugló" = "Budapest 14. ker."
 "Budapesti Hangadó" = "Budapest 13. ker."
 
-[dummy.config.address.address_type_id_map]
+[dummy.config.address_type_id_map]
 "Állandó lakcím" = 1
 "Székhely cím" = 2
 "Hivatalos cím" = 3
 "Levelezési cím" = 4
+
+[dummy.config.membership_fee_category_id_map]
+"nyugdíjas" = 1
+"diák" = 2
+"dolgozó" = 3
+
+[dummy.config.phone_type_id_map]
+"Elsődleges telefon" = 1
+"Másodlagos telefon" = 2
+"Harmadlagos telefon" = 3
+
+[dummy.config.email_type_id_map]
+"Elsődleges email" = 1
+"Másodlagos email" = 2

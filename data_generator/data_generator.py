@@ -33,6 +33,11 @@ class DummyDataGenerator:
         - Person data (and corresponding contacts)
         - Organization data (and corresponding contacts)
         - Organization-person relational data
+        - Gender mapping data
+        - Membership fee category mapping data
+        - Address type mapping data
+        - Phone type mapping data
+        - Email type mapping data
     """
     def __init__(self) -> None:
         _logger.info('Initializing DummyData class')
@@ -49,6 +54,11 @@ class DummyDataGenerator:
         self.phone_data = DummyPhoneData(self.resources, self.config)
         self.email_data = DummyEmailData(self.resources, self.config)
         self.membership_data = DummyMembershipData(self.resources, self.config)
+        self.gender_data = DummyGenderData(self.resources, self.config)
+        self.membership_fee_category_data = DummyMembershipFeeCategoryData(self.resources, self.config)
+        self.address_type_data = DummyAddressTypeData(self.resources, self.config)
+        self.phone_type_data = DummyPhoneTypeData(self.resources, self.config)
+        self.email_type_data = DummyEmailTypeData(self.resources, self.config)
 
     def _load_config(self) -> None:
         py_project = toml.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyproject.toml'))
@@ -77,36 +87,30 @@ class DummyDataGenerator:
 
         df_ppl.drop(columns=['organization'], inplace=True)
 
-        current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-
-        df_ppl.insert(len(df_ppl.columns), "created_on", current_timestamp)
-        df_ppl.insert(len(df_ppl.columns), "created_by", os.getlogin())
-
-        df_org.insert(len(df_org.columns), "created_on", current_timestamp)
-        df_org.insert(len(df_org.columns), "created_by", os.getlogin())
-
-        df_address.insert(len(df_address.columns), "created_on", current_timestamp)
-        df_address.insert(len(df_address.columns), "created_by", os.getlogin())
-
-        df_phone.insert(len(df_phone.columns), "created_on", current_timestamp)
-        df_phone.insert(len(df_phone.columns), "created_by", os.getlogin())
-
-        df_email.insert(len(df_email.columns), "created_on", current_timestamp)
-        df_email.insert(len(df_email.columns), "created_by", os.getlogin())
-
-        df_membership.insert(len(df_membership.columns), "created_on", current_timestamp)
-        df_membership.insert(len(df_membership.columns), "created_by", os.getlogin())
-
-        return {
-            'person': df_ppl[['created_on', 'created_by']].copy(),
+        df_dict = {
+            'person': df_ppl[[]].copy(),
             'person_data': df_ppl,
-            'organization': df_org[['created_on', 'created_by']].copy(),
+            'organization': df_org[[]].copy(),
             'organization_data': df_org,
             'address': df_address,
             'phone': df_phone,
             'email': df_email,
             'membership': df_membership,
+            'gender': self.gender_data(),
+            'membership_fee_category': self.membership_fee_category_data(),
+            'address_type': self.address_type_data(),
+            'phone_type': self.phone_type_data(),
+            'email_type': self.email_type_data(),
         }
+
+        current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        user_id = os.getlogin()
+
+        for df in df_dict.values():
+            df.insert(len(df.columns), "created_on", current_timestamp)
+            df.insert(len(df.columns), "created_by", user_id)
+
+        return df_dict
 
 
 class DummyDataBase:
@@ -395,11 +399,11 @@ class DummyAddressData(DummyDataBase):
 
     @property
     def settlement_correction(self) -> Dict[str, str]:
-        return self.cfg.get('address', dict()).get('settlement_correction', dict()).copy()
+        return self.cfg.get('address_settlement_correction', dict()).copy()
 
     @property
     def address_type_id_map(self) -> Dict[str, int]:
-        return self.cfg.get('address', dict()).get('address_type_id_map', dict()).copy()
+        return self.cfg.get('address_type_id_map', dict()).copy()
 
     def get_zip_code_map(self) -> DefaultDict[str, List[str]]:
         """
@@ -753,8 +757,8 @@ class DummyMembershipData(DummyDataBase):
         """
         Generates membership data based on initial mapping of people and organizations.
 
-        :param df_person:
-        :param df_org:
+        :param df_person: DataFrame with member data
+        :param df_org: DataFrame with organization data
         """
         df_membership = pd.merge(left=df_person, right=df_org, how='left', left_on='organization', right_on='name')
         df_membership = df_membership[['person_id', 'organization_id']].copy()
@@ -767,3 +771,83 @@ class DummyMembershipData(DummyDataBase):
         df_membership.insert(len(df_membership.columns), 'valid_flag', 'Y')
         df_membership.index.rename('id', inplace=True)
         return df_membership
+
+
+class DummyDataBaseMapping(DummyDataBase):
+    """
+    Base class to simplify mapping table creation with generic DataFrame creation function.
+    """
+
+    def generate_mapping(self, name: str) -> pd.DataFrame:
+        """
+        Support function to retrieve mapping values from config and create DataFrame.
+
+        :param name: mapping value key
+        """
+        df = pd.DataFrame.from_dict(self.cfg.get(name, dict()).copy(), orient='index', columns=['id'])
+        df.index.rename('name', inplace=True)
+        df.reset_index(inplace=True)
+        df.set_index(keys='id', inplace=True)
+        df.insert(len(df.columns), 'description', None)
+        df.insert(len(df.columns), 'valid_flag', 'Y')
+        return df
+
+
+class DummyGenderData(DummyDataBaseMapping):
+    """
+    Class to create mapping table for gender id-s.
+    """
+
+    def __call__(self) -> pd.DataFrame:
+        """
+        Generate the gender mapping data.
+        """
+        return self.generate_mapping('gender_id_map')
+
+
+class DummyMembershipFeeCategoryData(DummyDataBaseMapping):
+    """
+    Class to create mapping table for membership fee category id-s.
+    """
+
+    def __call__(self) -> pd.DataFrame:
+        """
+        Generate the membership fee category mapping data.
+        """
+        return self.generate_mapping('membership_fee_category_id_map')
+
+
+class DummyAddressTypeData(DummyDataBaseMapping):
+    """
+    Class to create mapping table for address type id-s.
+    """
+
+    def __call__(self) -> pd.DataFrame:
+        """
+        Generate the address type mapping data.
+        """
+        return self.generate_mapping('address_type_id_map')
+
+
+class DummyPhoneTypeData(DummyDataBaseMapping):
+    """
+    Class to create mapping table for phone type id-s.
+    """
+
+    def __call__(self) -> pd.DataFrame:
+        """
+        Generate the phone type mapping data.
+        """
+        return self.generate_mapping('phone_type_id_map')
+
+
+class DummyEmailTypeData(DummyDataBaseMapping):
+    """
+    Class to create mapping table for email type id-s.
+    """
+
+    def __call__(self) -> pd.DataFrame:
+        """
+        Generate the email type mapping data.
+        """
+        return self.generate_mapping('email_type_id_map')

@@ -26,7 +26,7 @@ def clean_up_id_columns(df: pd.DataFrame, indices: Optional[Iterable] = None) ->
         if col.find('uuid') != -1:
             df.insert(next(column_order), col, df.pop(col))
             df.drop(columns=[col.replace('uuid', 'id')], inplace=True)
-            df.rename(columns={col: col.replace('uuid', 'id')})
+            df.rename(columns={col: col.replace('uuid', 'id')}, inplace=True)
     return df
 
 
@@ -48,6 +48,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         mappings['membership_fee_category'], how='left', left_on='membership_fee_category_id', right_index=True
     )
     clean_up_id_columns(result['person_data'], (0, 7, 9))
+    generate_uuid(result['person_data'], 'uuid')
+    result['person_data'].set_index('uuid', drop=True, inplace=True)
 
     result['organization'] = result['organization'].merge(
         mappings['organization'], how='left', left_index=True, right_index=True
@@ -62,6 +64,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         'organization_uuid_y': 'organization_parent_uuid',
     }, inplace=True)
     clean_up_id_columns(result['organization_data'])
+    generate_uuid(result['organization_data'], 'uuid')
+    result['organization_data'].set_index('uuid', drop=True, inplace=True)
 
     result['address'] = result['address'].merge(
         mappings['person'], how='left', left_on='person_id', right_index=True
@@ -73,6 +77,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         mappings['address_type'], how='left', left_on='address_type_id', right_index=True
     )
     clean_up_id_columns(result['address'])
+    generate_uuid(result['address'], 'uuid')
+    result['address'].set_index('uuid', drop=True, inplace=True)
 
     result['phone'] = result['phone'].merge(
         mappings['person'], how='left', left_on='person_id', right_index=True
@@ -84,6 +90,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         mappings['phone_type'], how='left', left_on='phone_type_id', right_index=True
     )
     clean_up_id_columns(result['phone'])
+    generate_uuid(result['phone'], 'uuid')
+    result['phone'].set_index('uuid', drop=True, inplace=True)
 
     result['email'] = result['email'].merge(
         mappings['person'], how='left', left_on='person_id', right_index=True
@@ -95,6 +103,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         mappings['email_type'], how='left', left_on='email_type_id', right_index=True
     )
     clean_up_id_columns(result['email'])
+    generate_uuid(result['email'], 'uuid')
+    result['email'].set_index('uuid', drop=True, inplace=True)
 
     result['membership'] = result['membership'].merge(
         mappings['person'], how='left', left_on='person_id', right_index=True
@@ -103,6 +113,8 @@ def map_id_fields(df_dict: Dict[str, pd.DataFrame]) -> Dict[str, pd.DataFrame]:
         mappings['organization'], how='left', left_on='organization_id', right_index=True
     )
     clean_up_id_columns(result['membership'])
+    generate_uuid(result['membership'], 'uuid')
+    result['membership'].set_index('uuid', drop=True, inplace=True)
 
     result['gender'] = result['gender'].merge(
         mappings['gender'], how='left', left_index=True, right_index=True

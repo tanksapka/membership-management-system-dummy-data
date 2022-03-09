@@ -1,13 +1,13 @@
 import argparse
 import logging
-import pathlib
 import toml
 from data_generator.data_generator import DummyDataGenerator, pd
 from data_generator.id_utils import map_id_fields
 from logging import config
+from pathlib import Path
 
 
-log_cfg = toml.load(pathlib.Path(__file__).parent.joinpath('pyproject.toml'))
+log_cfg = toml.load(Path(__file__).parent.joinpath('pyproject.toml'))
 config.dictConfig(log_cfg)
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def create_parser() -> argparse.ArgumentParser:
 
 def run_data_generation(output_folder: str, file_format: str, id_type: str) -> None:
     _logger.info(f'Received inputs: {output_folder} and {file_format}')
-    path = pathlib.Path(output_folder)
+    path = Path(output_folder)
     if not path.exists():
         _logger.info(f'Creating output folder ({path}) as it does not exist')
         path.mkdir(parents=True, exist_ok=True)

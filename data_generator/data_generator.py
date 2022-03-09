@@ -4,19 +4,20 @@ This module creates the dummy data replicating the memberdb data model and expor
 import data_generator.source_data as sd
 import datetime
 import logging
-import os
 import pandas as pd
 import random
 import toml
 from collections import defaultdict
+from getpass import getuser
 from inspect import getmembers, isfunction
 from logging import config
+from pathlib import Path
 from string import ascii_uppercase, digits
 from typing import Any, DefaultDict, Dict, List
 
 
-log_cfg = toml.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyproject.toml'))
-config.dictConfig(log_cfg)
+CFG = toml.load(Path(__file__).parent.parent.joinpath('pyproject.toml'))
+config.dictConfig(CFG)
 _logger = logging.getLogger(__name__)
 
 
@@ -61,8 +62,7 @@ class DummyDataGenerator:
         self.email_type_data = DummyEmailTypeData(self.resources, self.config)
 
     def _load_config(self) -> None:
-        py_project = toml.load(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'pyproject.toml'))
-        self._config = py_project.get('dummy', dict()).get('config', dict())
+        self._config = CFG.get('dummy', dict()).get('config', dict())
 
     @property
     def config(self) -> Dict[str, Any]:
@@ -104,7 +104,7 @@ class DummyDataGenerator:
         }
 
         current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
-        user_id = os.getlogin()
+        user_id = getuser()
 
         for df in df_dict.values():
             df.insert(len(df.columns), "created_on", current_timestamp)

@@ -4,7 +4,7 @@
 # Usage
 1. Install Python (3.7.9 or higher)
 2. Create virtual environment `python -m venv venv`
-3. Activate virtual environment `venv\Scripts\activate.bat` or `source venv\bin\activate`
+3. Activate virtual environment `venv\Scripts\activate.bat` or `source venv/bin/activate`
 4. Install required modules from requirements.txt `pip install -r requirements.txt`
 5. Run main.py file which contains a simple CLI `pyhton main.py -h`
 6. Example: `python main.py -o output -t xls -i uuid`

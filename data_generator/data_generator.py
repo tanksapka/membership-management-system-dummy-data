@@ -196,10 +196,10 @@ class DummyPersonData(DummyDataBase):
             for gender, count in gender_map.items():
                 if gender in ('male', 'female'):
                     tmp_df = self.first_names.loc[self.first_names.gender == gender].sample(
-                        n=count, random_state=self.seed
+                        n=count, replace=True, random_state=self.seed
                     )
                 else:
-                    tmp_df = self.first_names.sample(n=count, random_state=self.seed)
+                    tmp_df = self.first_names.sample(n=count, replace=True, random_state=self.seed)
                     tmp_df['gender'] = 'other'
                 tmp_df.insert(0, 'organization', row.at['organization'])
                 tmp_df.insert(len(tmp_df.columns), 'gender_id', self.gender_map[gender])
@@ -213,7 +213,7 @@ class DummyPersonData(DummyDataBase):
         """
         Generates a dataframe of last names.
         """
-        return self.last_names.sample(n=count, random_state=self.seed).reset_index(drop=True).iloc[:, :1]
+        return self.last_names.sample(n=count, replace=True, random_state=self.seed).reset_index(drop=True).iloc[:, :1]
 
     def generate_date_of_birth(self, count: int) -> pd.DataFrame:
         """
@@ -241,7 +241,9 @@ class DummyPersonData(DummyDataBase):
                     .reset_index(drop=True)
                     .iloc[:, :1]
             ),
-            right=self.last_names.sample(n=count, random_state=self.seed).reset_index(drop=True).iloc[:, :1],
+            right=self.last_names.sample(
+                n=count, replace=True, random_state=self.seed
+            ).reset_index(drop=True).iloc[:, :1],
             left_index=True,
             right_index=True,
         )
@@ -463,7 +465,7 @@ class DummyAddressData(DummyDataBase):
         rows = len(df.index)
 
         streets: pd.DataFrame = self.street_names.sample(
-            n=rows, weights='street_count', random_state=self.seed).reset_index(drop=True).iloc[:, :1]
+            n=rows, replace=True, weights='street_count', random_state=self.seed).reset_index(drop=True).iloc[:, :1]
         random.seed = self.seed
         streets.insert(len(streets.columns), 'house_number', [f'{random.randint(1, 101)}.' for _ in range(rows)])
         streets.insert(len(streets.columns), 'address_1', streets['street_name'] + ' ' + streets['house_number'])
